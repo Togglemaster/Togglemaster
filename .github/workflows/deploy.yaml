@@ -1,4 +1,4 @@
-name: Deploy Togglemaster (Infra + Apps + Observability)
+name: Deploy Togglemaster
 
 on:
   workflow_dispatch:
@@ -30,14 +30,18 @@ jobs:
   # 1. Aplicar Infra
   Terraform:
     needs: validate
-    uses: Togglemaster/Terraform/.github/workflows/terraform_apply_production.yaml@main
+    uses: Togglemaster/Terraform/.github/workflows/terraform_apply.yaml@main
     secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   # 2. Sincronizar Secrets
   Secrets:
     needs: Terraform
     uses: Togglemaster/Terraform/.github/workflows/secrets_production.yaml@main
     secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   # 3. Deploy Observability (Datadog)
   Observability:
