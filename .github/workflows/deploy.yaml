@@ -15,10 +15,21 @@ on:
         required: true
 
 jobs:
-  if: github.event.inputs.confirm == github.event.inputs.environment
+
+  #Validação para evitar deploy acidental
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "${{ github.event.inputs.environment }}" ]; then
+            echo "Confirmation '${{ github.event.inputs.confirm }}' does not match environment '${{ github.event.inputs.environment }}'."
+            exit 1
+          fi
 
   # 1. Aplicar Infra
   Terraform:
+    needs: validate
     uses: Togglemaster/Terraform/.github/workflows/terraform_apply_production.yaml@main
     secrets: inherit
 
