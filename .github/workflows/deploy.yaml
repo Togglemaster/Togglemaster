@@ -1,0 +1,66 @@
+name: Deploy Togglemaster (Infra + Apps + Observability)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to apply Terraform"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      confirm:
+        description: "Type the environment name to confirm"
+        required: true
+
+jobs:
+  if: github.event.inputs.confirm == github.event.inputs.environment
+
+  # 1. Aplicar Infra
+  Terraform:
+    uses: Togglemaster/Terraform/.github/workflows/terraform_apply_production.yaml@main
+    secrets: inherit
+
+  # 2. Sincronizar Secrets
+  Secrets:
+    needs: Terraform
+    uses: Togglemaster/Terraform/.github/workflows/secrets_production.yaml@main
+    secrets: inherit
+
+  # 3. Deploy Observability (Datadog)
+  Observability:
+    needs: Secrets
+    uses: Togglemaster/Observability/.github/workflows/observability.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
+
+  # 4. CI dos Microserviços (Rodam em paralelo)
+  CI_Auth:
+    needs: Secrets
+    uses: Togglemaster/Auth-Service/.github/workflows/auth_production.yaml@main
+
+  CI_Flag:
+    needs: Secrets
+    uses: Togglemaster/Flag-Service/.github/workflows/flag_production.yaml@main
+
+  CI_Targeting:
+    needs: Secrets
+    uses: Togglemaster/Targeting-Service/.github/workflows/targeting_production.yaml@main
+
+  CI_Evaluation:
+    needs: Secrets
+    uses: Togglemaster/Evaluation-Service/.github/workflows/evaluation_production.yaml@main
+
+  CI_Analytics:
+    needs: Secrets
+    uses: Togglemaster/Analytics-Service/.github/workflows/analytics_production.yaml@main
+
+  # 5. Deploy Final com ArgoCD e Helm
+  Deploy_Helm:
+    needs: [CI_Auth, CI_Flag, CI_Targeting, CI_Evaluation, CI_Analytics] # Espera os CIs terminarem
+    uses: Togglemaster/togglemaster/.github/workflows/helm_deploy.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
