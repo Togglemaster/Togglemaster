@@ -38,7 +38,7 @@ jobs:
   # 2. Sincronizar Secrets
   Secrets:
     needs: Terraform
-    uses: Togglemaster/Terraform/.github/workflows/secrets_production.yaml@main
+    uses: Togglemaster/Terraform/.github/workflows/secrets.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
