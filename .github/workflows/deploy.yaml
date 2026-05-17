@@ -54,23 +54,38 @@ jobs:
   # 4. CI dos Microserviços (Rodam em paralelo)
   CI_Auth:
     needs: Secrets
-    uses: Togglemaster/Auth-Service/.github/workflows/auth_production.yaml@main
+    uses: Togglemaster/Auth-Service/.github/workflows/auth.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   CI_Flag:
     needs: Secrets
-    uses: Togglemaster/Flag-Service/.github/workflows/flag_production.yaml@main
+    uses: Togglemaster/Flag-Service/.github/workflows/flag.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   CI_Targeting:
     needs: Secrets
-    uses: Togglemaster/Targeting-Service/.github/workflows/targeting_production.yaml@main
+    uses: Togglemaster/Targeting-Service/.github/workflows/targeting.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   CI_Evaluation:
     needs: Secrets
-    uses: Togglemaster/Evaluation-Service/.github/workflows/evaluation_production.yaml@main
+    uses: Togglemaster/Evaluation-Service/.github/workflows/evaluation.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   CI_Analytics:
     needs: Secrets
-    uses: Togglemaster/Analytics-Service/.github/workflows/analytics_production.yaml@main
+    uses: Togglemaster/Analytics-Service/.github/workflows/analytics.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
 
   # 5. Deploy Final com ArgoCD e Helm
   Deploy_Helm:
