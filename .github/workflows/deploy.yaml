@@ -94,3 +94,10 @@ jobs:
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
+
+  Observability:
+    needs: Deploy_Helm
+    uses: Togglemaster/Observability/.github/workflows/observability.yaml@main
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
