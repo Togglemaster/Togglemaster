@@ -53,35 +53,35 @@ jobs:
 
   # 4. CI dos Microserviços (Rodam em paralelo)
   CI_Auth:
-    needs: Secrets
+    needs: Observability
     uses: Togglemaster/Auth-Service/.github/workflows/auth.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
 
   CI_Flag:
-    needs: Secrets
+    needs: Observability
     uses: Togglemaster/Flag-Service/.github/workflows/flag.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
 
   CI_Targeting:
-    needs: Secrets
+    needs: Observability
     uses: Togglemaster/Targeting-Service/.github/workflows/targeting.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
 
   CI_Evaluation:
-    needs: Secrets
+    needs: Observability
     uses: Togglemaster/Evaluation-Service/.github/workflows/evaluation.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
 
   CI_Analytics:
-    needs: Secrets
+    needs: Observability
     uses: Togglemaster/Analytics-Service/.github/workflows/analytics.yaml@main
     secrets: inherit
     with:
@@ -91,13 +91,6 @@ jobs:
   Deploy_Helm:
     needs: [CI_Auth, CI_Flag, CI_Targeting, CI_Evaluation, CI_Analytics] # Espera os CIs terminarem
     uses: Togglemaster/togglemaster/.github/workflows/helm_deploy.yaml@main
-    secrets: inherit
-    with:
-      environment: ${{ github.event.inputs.environment }}
-
-  Observability:
-    needs: Deploy_Helm
-    uses: Togglemaster/Observability/.github/workflows/observability.yaml@main
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
